@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    tools:context="com.example.android.traintrack.HomeActivity">
+
+    <Button
+        android:id="@+id/bt_edit_routine"
+        android:layout_width="175dp"
+        android:layout_height="wrap_content"
+        android:text="Manage Routines"/>
+
+    <Button
+        android:id="@+id/bt_load_routine"
+        android:layout_width="175dp"
+        android:layout_height="wrap_content"
+        android:text="Load a Routine"/>
+
+    <Button
+        android:id="@+id/bt_report"
+        android:layout_width="175dp"
+        android:layout_height="wrap_content"
+        android:text="Generate Report"/>
+
+    <Button
+        android:id="@+id/bt_start_workout"
+        android:layout_width="175dp"
+        android:layout_height="wrap_content"
+        android:text="Start Workout"
+        android:layout_marginTop="50dp"/>
+
+</LinearLayout>

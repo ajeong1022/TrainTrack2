@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">TrainTrack2</string>
+    <string name="empty_view">There are no exercises to show.</string>
+</resources>

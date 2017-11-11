@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:descendantFocusability="blocksDescendants">
+
+
+    <TextView
+        android:id="@+id/tv_exercise_detail_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="16dp"
+        android:paddingTop="16dp"
+        android:textSize="20sp"
+        tools:text="Bench Press 40kg 3x12" />
+
+
+    <ImageButton
+        android:id="@+id/bt_delete_exercise"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="5dp"
+        android:focusable="false"
+        android:clickable="false"
+        android:src="@drawable/ic_action_delete_exercise" />
+
+
+
+</RelativeLayout>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="routine_objectives">
+        <item>Hypertrophy</item>
+        <item>Strength</item>
+        <item>Endurance</item>
+    </string-array>
+
+</resources>
