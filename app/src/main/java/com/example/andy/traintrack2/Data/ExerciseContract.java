@@ -2,10 +2,7 @@ package com.example.andy.traintrack2.Data;
 
 import android.provider.BaseColumns;
 
-/**
- * Created by andy on 17. 11. 3.
- * Defines some constants related to the database that will be accessed by other classes.
- */
+
 
 public class ExerciseContract {
     public static final String DATABASE_NAME = "routine.db";
