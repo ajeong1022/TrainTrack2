@@ -24,6 +24,10 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity"/>
         </activity>
+
+        <provider android:name=".Data.ExerciseProvider"
+            android:authorities="com.example.andy.traintrack2"
+            android:exported="false"/>
     </application>
 
 </manifest>

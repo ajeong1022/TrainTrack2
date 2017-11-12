@@ -44,14 +44,12 @@ public class MainActivity extends AppCompatActivity {
 
         mDbOpenHelper = new DbOpenHelper(this);
 
-        Cursor exercises = mDbOpenHelper.getReadableDatabase().query(
-                ExerciseTable.TABLE_NAME,
+        Cursor exercises = getContentResolver().query(ExerciseTable.CONTENT_URI,
                 null,
                 null,
                 null,
-                null,
-                null,
-                null);
+                null
+                );
 
         //We use a static List keeping track of all Id's. When we delete the ith element in the
         //ListView, we get the ith ID in this list and use that value to operate on the database.
