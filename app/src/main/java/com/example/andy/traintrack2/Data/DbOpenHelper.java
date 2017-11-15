@@ -17,7 +17,7 @@ public class DbOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
-        sqLiteDatabase.execSQL(ExerciseContract.ExerciseTable.DELETE_ENTRIES);
+        sqLiteDatabase.delete(ExerciseContract.ExerciseTable.TABLE_NAME, null, null);
         sqLiteDatabase.execSQL(ExerciseContract.ExerciseTable.CREATE_SQL_ENTRIES);
     }
 }

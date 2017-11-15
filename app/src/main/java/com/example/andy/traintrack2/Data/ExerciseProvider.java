@@ -33,8 +33,6 @@ public class ExerciseProvider extends ContentProvider {
         return true;
     }
 
-
-    //TODO: Depending on the URI, implement the database CRUD operations -> adapt from code in MainActivity and EditorActivity.
     @Nullable
     @Override
     public Cursor query(@NonNull Uri uri, @Nullable String[] strings, @Nullable String s, @Nullable String[] strings1, @Nullable String s1) {
@@ -98,8 +96,7 @@ public class ExerciseProvider extends ContentProvider {
                 db.close();
                 break;
         }
-        Uri contentUri = Uri.withAppendedPath(ExerciseContract.BASE_CONTENT_URI, ExerciseContract.PATH_EXERCISES_ID);
-        return ContentUris.withAppendedId(contentUri, rowId);
+        return ContentUris.withAppendedId(ExerciseTable.CONTENT_URI_ID, rowId);
     }
 
     @Override

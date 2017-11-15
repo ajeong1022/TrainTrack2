@@ -1,21 +1,25 @@
 package com.example.andy.traintrack2;
 
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.database.CursorIndexOutOfBoundsException;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.andy.traintrack2.Data.ExerciseContract;
 import com.example.andy.traintrack2.Data.ExerciseContract.ExerciseTable;
 
 import com.example.andy.traintrack2.Data.DbOpenHelper;
@@ -164,9 +168,8 @@ public class EditorActivity extends AppCompatActivity {
         values.put(ExerciseTable.COLUMN_TITLE, e.getTitle());
         values.put(ExerciseTable.COLUMN_SET, e.getSet());
         values.put(ExerciseTable.COLUMN_REP, e.getRep());
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
-        db.insert(ExerciseTable.TABLE_NAME, null, values);
-        db.close();
+
+        getContentResolver().insert(ExerciseTable.CONTENT_URI, values);
     }
 
     /**
@@ -178,11 +181,15 @@ public class EditorActivity extends AppCompatActivity {
         values.put(ExerciseTable.COLUMN_TITLE, e.getTitle());
         values.put(ExerciseTable.COLUMN_SET, e.getSet());
         values.put(ExerciseTable.COLUMN_REP, e.getRep());
-        String index = String.valueOf(MainActivity.idList.get(getIntent().getIntExtra("Index", -1)));
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
-        db.update(ExerciseTable.TABLE_NAME, values, ExerciseTable.COLUMN_ID + "=" + index,
-                null);
-        db.close();}
+        int index = MainActivity.sIdList.get(getIntent().getIntExtra("Index", -1));
+
+        Uri uri = ContentUris.withAppendedId(ExerciseTable.CONTENT_URI, index);
+        getContentResolver().update(uri,
+                values,
+                ExerciseTable.COLUMN_ID + "=?",
+                new String[]{String.valueOf(index)});
+        }
+
 
     /**
      * This method performs the necessary updates to the database when an edit is requested by the user.
@@ -255,12 +262,12 @@ public class EditorActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 try{
-                    int index = MainActivity.idList.get(getIntent().getIntExtra("Index", -1));
-                    SQLiteDatabase db = mDbHelper.getWritableDatabase();
-                    db.delete(ExerciseTable.TABLE_NAME,
-                            ExerciseTable.COLUMN_ID + "=?", new String[]{String.valueOf(index)});
+                    int index = MainActivity.sIdList.get(getIntent().getIntExtra("Index", -1));
+                    Uri uri = ContentUris.withAppendedId(ExerciseTable.CONTENT_URI, index);
+                    getContentResolver().delete(uri,
+                            ExerciseTable.COLUMN_ID + "=?",
+                            new String[]{String.valueOf(index)});
                     Toast.makeText(EditorActivity.this, "Exercise was successfully deleted.", Toast.LENGTH_SHORT).show();
-                    db.close();
                     NavUtils.navigateUpFromSameTask(EditorActivity.this);
 
                 } catch(CursorIndexOutOfBoundsException e){
