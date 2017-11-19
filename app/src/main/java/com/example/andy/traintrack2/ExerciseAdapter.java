@@ -7,22 +7,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
 import com.example.andy.traintrack2.Data.ExerciseContract.ExerciseTable;
 import com.google.gson.Gson;
 
 public class ExerciseAdapter extends RecyclerView.Adapter {
     private Cursor mExerciseCursor;
 
-    public ExerciseAdapter(Cursor exercises){
+    public ExerciseAdapter(Cursor exercises) {
         mExerciseCursor = exercises;
-    }
-
-    public static class ViewHolder extends RecyclerView.ViewHolder{
-        public TextView mTextView;
-        public ViewHolder(View itemView) {
-            super(itemView);
-            mTextView = (TextView) itemView;
-        }
     }
 
     @Override
@@ -65,9 +58,17 @@ public class ExerciseAdapter extends RecyclerView.Adapter {
         return mExerciseCursor == null ? 0 : mExerciseCursor.getCount();
     }
 
-    public void swapCursor(Cursor c){
+    public void swapCursor(Cursor c) {
         mExerciseCursor = c;
-        this.notifyDataSetChanged();
+    }
+
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        public TextView mTextView;
+
+        public ViewHolder(View itemView) {
+            super(itemView);
+            mTextView = (TextView) itemView;
+        }
     }
 
 }

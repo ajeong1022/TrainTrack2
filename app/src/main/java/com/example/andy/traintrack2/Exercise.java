@@ -1,7 +1,6 @@
 package com.example.andy.traintrack2;
 
 /**
- * Created by andy on 17. 11. 3.
  * This class defines an object called Exercise.
  * This object has attributes and methods that provide information about an exercise.
  */
@@ -14,7 +13,7 @@ public class Exercise {
     private int mRep;
 
     //We declare a constructor which takes in as input the three attributes of an exercise.
-    public Exercise(String title, int set, int rep){
+    public Exercise(String title, int set, int rep) {
         mTitle = title;
         mSet = set;
         mRep = rep;
@@ -22,15 +21,15 @@ public class Exercise {
 
 
     //We also create getter methods that will return individual attributes of an exercise.
-    public String getTitle(){
+    public String getTitle() {
         return mTitle;
     }
 
-    public int getSet(){
+    public int getSet() {
         return mSet;
     }
 
-    public int getRep(){
+    public int getRep() {
         return mRep;
     }
 }
