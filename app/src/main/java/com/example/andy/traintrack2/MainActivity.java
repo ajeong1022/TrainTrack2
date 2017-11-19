@@ -7,13 +7,18 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -35,60 +40,38 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>{
 
     //Member variables for the exercise list and exercise ListView.
-    private ListView mExerciseListView;
+    private RecyclerView mExerciseRecyclerView;
+    private TextView mEmptyView;
+    private Menu mMenu;
     private FloatingActionButton fab;
-    private DbOpenHelper mDbOpenHelper;
     private ExerciseAdapter mAdapter;
     public static List<Integer> sIdList;
     private CursorLoader mLoader;
+    private Cursor exercises;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mDbOpenHelper = new DbOpenHelper(this);
         mLoader = (CursorLoader) getSupportLoaderManager().initLoader(0, null, this);
-
-
         //We load the currently stored exercises in a background thread using a CursorLoader.
-        Cursor exercises = mLoader.loadInBackground();
-
+        exercises = mLoader.loadInBackground();
         //We use a static List keeping track of all Id's. When we delete the ith element in the
         //ListView, we get the ith ID in this list and use that value to operate on the database.
         sIdList = new ArrayList<>();
         while(exercises.moveToNext()){
             sIdList.add(exercises.getInt(exercises.getColumnIndexOrThrow(ExerciseTable.COLUMN_ID)));
         }
-
-        mExerciseListView = findViewById(R.id.lv_exercise_list);
+        mExerciseRecyclerView = findViewById(R.id.rv_exercise_list);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
+        mExerciseRecyclerView.setLayoutManager(layoutManager);
         mAdapter = new ExerciseAdapter(exercises);
-        mExerciseListView.setAdapter(mAdapter);
-        mExerciseListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
-            //If one wishes to modify a saved exercise, we launch the editor activity with a flag.
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Cursor editableExercise = (Cursor) adapterView.getItemAtPosition(i);
-
-                //We reconstruct the exercise object from the cursor and pass it along with the intent.
-                String title = editableExercise.getString(editableExercise.getColumnIndexOrThrow(ExerciseTable.COLUMN_TITLE));
-                int set = editableExercise.getInt(editableExercise.getColumnIndexOrThrow(ExerciseTable.COLUMN_SET));
-                int rep = editableExercise.getInt(editableExercise.getColumnIndexOrThrow(ExerciseTable.COLUMN_REP));
-                Exercise currentExercise = new Exercise(title, set, rep);
-
-                //We use Google GSON to serialize the Exercise object to pass to EditorActivity.
-                String json = new Gson().toJson(currentExercise);
-                Intent intent = new Intent(MainActivity.this, EditorActivity.class);
-                intent.putExtra("Edit Mode", true);
-                intent.putExtra("Exercise", json);
-                intent.putExtra("Index", i);
-                startActivity(intent);
-            }
-        });
-
-        TextView mEmptyView = findViewById(R.id.tv_empty_view);
-        mExerciseListView.setEmptyView(mEmptyView);
+        mExerciseRecyclerView.setAdapter(mAdapter);
+        mExerciseRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(this));
+        //We manually implement the EmptyView functionality.
+        mEmptyView = findViewById(R.id.tv_empty_view);
+        if(mAdapter.getItemCount() != 0) mEmptyView.setVisibility(View.GONE);
 
         fab = findViewById(R.id.fab_add_exercise);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -123,35 +106,16 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
 
     /**
-     * A simple ArrayAdapter that returns a list of exercise titles.
-     */
-    private class ExerciseAdapter extends CursorAdapter {
-
-        public ExerciseAdapter(Cursor c) {
-            super(MainActivity.this, c, 0);
-        }
-
-        @Override
-        public View newView(Context context, Cursor cursor, ViewGroup viewGroup) {
-            return getLayoutInflater().inflate(android.R.layout.simple_list_item_1, viewGroup, false);
-        }
-
-        @Override
-        public void bindView(View view, Context context, Cursor cursor) {
-            String title = cursor.getString(cursor.getColumnIndexOrThrow(ExerciseTable.COLUMN_TITLE));
-            ((TextView) view).setText(title);
-        }
-    }
-
-    /**
      * We inflate the menu option to create a new routine.
      * @param menu
      * @return true if the menu is created
      */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater menuInflater = getMenuInflater();
-        menuInflater.inflate(R.menu.menu_routine_creator, menu);
+        if(mAdapter.getItemCount() != 0){
+            getMenuInflater().inflate(R.menu.menu_routine_creator, menu);
+            mMenu = menu;
+        }
         return true;
     }
 
@@ -173,9 +137,11 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 getContentResolver().delete(ExerciseTable.CONTENT_URI, null, null);
-                mAdapter.swapCursor(null);
+                Cursor emptyCursor = mLoader.loadInBackground();
+                mAdapter.swapCursor(emptyCursor);
+                mMenu.clear();
+                mEmptyView.setVisibility(View.VISIBLE);
                 Toast.makeText(MainActivity.this, "Successfully deleted routine.", Toast.LENGTH_SHORT).show();
-
             }
 
         });
@@ -187,6 +153,33 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             }
         });
         builder.create().show();
+    }
+
+    public class SimpleDividerItemDecoration extends RecyclerView.ItemDecoration {
+        private Drawable mDivider;
+
+        public SimpleDividerItemDecoration(Context context) {
+            mDivider = ContextCompat.getDrawable(MainActivity.this, R.drawable.line_divider);
+        }
+
+        @Override
+        public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {
+            int left = parent.getPaddingLeft()+50;
+            int right = parent.getWidth() - parent.getPaddingRight()-50;
+
+            int childCount = parent.getChildCount();
+            for (int i = 0; i < childCount; i++) {
+                View child = parent.getChildAt(i);
+
+                RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) child.getLayoutParams();
+
+                int top = child.getBottom() + params.bottomMargin;
+                int bottom = top + mDivider.getIntrinsicHeight();
+
+                mDivider.setBounds(left, top, right, bottom);
+                mDivider.draw(c);
+            }
+        }
     }
 
 }
