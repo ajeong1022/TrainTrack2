@@ -31,7 +31,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     public static List<Integer> sIdList;
-    //Member variables for the exercise list and exercise ListView.
+
     private RecyclerView mExerciseRecyclerView;
     private TextView mEmptyView;
     private Menu mMenu;
@@ -42,28 +42,34 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
-        Log.e("MainActivity", "ON CREATE WAS CALLED");
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        getSupportActionBar().setTitle("Routine OverView");
 
+        //We initialize the loader by calling onCreateLoader via the LoaderManager.
         mLoader = (CursorLoader) getSupportLoaderManager().initLoader(0, null, this);
-        //We load the currently stored exercises in a background thread using a CursorLoader.
 
+        //We load the currently stored exercises in a background thread using a CursorLoader.
         exercises = mLoader.loadInBackground();
+
         //We use a static List keeping track of all Id's. When we delete the ith element in the
         //ListView, we get the ith ID in this list and use that value to operate on the database.
         sIdList = new ArrayList<>();
         while (exercises.moveToNext()) {
             sIdList.add(exercises.getInt(exercises.getColumnIndexOrThrow(ExerciseTable.COLUMN_ID)));
         }
-        mExerciseRecyclerView = findViewById(R.id.rv_exercise_list);
+
+        //We initialize the LayoutManager and the RecyclerView.Adapter.
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
-        mExerciseRecyclerView.setLayoutManager(layoutManager);
         mAdapter = new ExerciseAdapter(exercises);
+
+        mExerciseRecyclerView = findViewById(R.id.rv_exercise_list);
+        mExerciseRecyclerView.setLayoutManager(layoutManager);
         mExerciseRecyclerView.setAdapter(mAdapter);
+
+        //We add item dividers in the RecyclerView.
         mExerciseRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(this));
+
         //We manually implement the EmptyView functionality.
         mEmptyView = findViewById(R.id.tv_empty_view);
         if (mAdapter.getItemCount() != 0) mEmptyView.setVisibility(View.GONE);
@@ -83,6 +89,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
+        /*If there exists a savedInstanceState, then screen configuration has changed.
+        This line removes the bug in which rows of exercises remain after 'delete all' is pressed
+        and the screen configuration is changed.*/
         mAdapter.swapCursor(mLoader.loadInBackground());
     }
 
@@ -107,19 +116,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-    }
-
-    /**
-     * We inflate the menu option to create a new routine.
-     *
-     * @param menu
-     * @return true if the menu is created
-     */
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        //The 'delete all' menu is only visible when there is a non-zero number of exercises
+        //in the database.
         if (mAdapter.getItemCount() != 0) {
             getMenuInflater().inflate(R.menu.menu_routine_creator, menu);
             mMenu = menu;
@@ -138,6 +137,11 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * This method creates an AlertDialog to confirm deletion of the routine.
+     * When deletion is confirmed, the adapter is refreshed by loading data again,
+     * and the menu and empty view's visibility is adjusted.
+     */
     private void confirmDeleteRoutine() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage("Are you sure you want to delete this routine?");
@@ -145,8 +149,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 getContentResolver().delete(ExerciseTable.CONTENT_URI, null, null);
-                Cursor emptyCursor = mLoader.loadInBackground();
-                mAdapter.swapCursor(emptyCursor);
+                mAdapter.swapCursor(mLoader.loadInBackground());
+                mAdapter.notifyDataSetChanged();
                 mMenu.clear();
                 mEmptyView.setVisibility(View.VISIBLE);
                 onLoaderReset(mLoader);
@@ -164,6 +168,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         builder.create().show();
     }
 
+    /**
+     * Simple class to define the recycler view dividers.
+     */
     public class SimpleDividerItemDecoration extends RecyclerView.ItemDecoration {
         private Drawable mDivider;
 

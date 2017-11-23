@@ -23,7 +23,6 @@ public final class ExerciseContract {
         //For each table, you will have an entry class like this, and for each entry class,
         //you will have a concrete content URI constant.
         public static final Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_EXERCISES);
-        public static final Uri CONTENT_URI_ID = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_EXERCISES_ID);
 
         public static final String COLUMN_ID = "_id";
         public static final String TABLE_NAME = "exercises";

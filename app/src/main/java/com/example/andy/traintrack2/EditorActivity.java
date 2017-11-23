@@ -32,7 +32,9 @@ public class EditorActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_editor);
 
+        //We check whether the activity was created in edit mode.
         mInEditMode = getIntent().getBooleanExtra("Edit Mode", false);
+
         mTitleView = findViewById(R.id.et_title_view);
         mSetView = findViewById(R.id.et_set_view);
         mRepView = findViewById(R.id.et_rep_view);
@@ -40,12 +42,16 @@ public class EditorActivity extends AppCompatActivity {
         if (mInEditMode) {
             //We retrive the exercise object to be updated.
             Exercise exercise = new Gson().fromJson(getIntent().getStringExtra("Exercise"), Exercise.class);
+
             //Then we populate the EditTexts as necessary.
             mTitleView.setText(exercise.getTitle());
             mSetView.setText(String.valueOf(exercise.getSet()));
             mRepView.setText(String.valueOf(exercise.getRep()));
         }
 
+        mIsEdited = false;
+
+        //We add TextChangedListeners to the EditTexts to monitor change in input fields.
         mTitleView.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -97,8 +103,6 @@ public class EditorActivity extends AppCompatActivity {
             }
         });
 
-        mIsEdited = false;
-
 
     }
 
@@ -112,6 +116,7 @@ public class EditorActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_exercise_creator, menu);
+        //We only show the delete button when the activity is created in edit mode.
         if (mInEditMode) {
             //Item at index 0 is the delete button.
             menu.getItem(0).setVisible(true);
@@ -136,11 +141,11 @@ public class EditorActivity extends AppCompatActivity {
                         || sets.equals("") || sets == null
                         || reps.equals("") || reps == null) {
                     Toast.makeText(this, "One of the fields is empty.", Toast.LENGTH_SHORT).show();
-                    return true;
+                    break;
+                } else {
+                    editExercise(title, sets, reps);
+                    break;
                 }
-                editExercise(title, sets, reps);
-                break;
-
             case R.id.action_delete_exercise:
                 confirmDelete();
                 break;
@@ -150,8 +155,7 @@ public class EditorActivity extends AppCompatActivity {
     }
 
     /**
-     * This method adds an exercise object to the sqlite database.
-     *
+     * This method adds an exercise object to the SQLite database.
      * @param e Exercise to be added.
      */
     private void addExercise(Exercise e) {
@@ -165,8 +169,7 @@ public class EditorActivity extends AppCompatActivity {
     }
 
     /**
-     * This method updates an exercise object already existing in the sqlite database.
-     *
+     * This method updates an exercise object already existing in the SQLite database.
      * @param e Updated exercise.
      */
     private void updateExercise(Exercise e) {
@@ -186,18 +189,13 @@ public class EditorActivity extends AppCompatActivity {
 
     /**
      * This method performs the necessary updates to the database when an edit is requested by the user.
-     *
      * @param title Edited exercise title
      * @param sets  Edited sets
      * @param reps  Edited reps
      */
     private void editExercise(String title, String sets, String reps) {
-        //We perform data sanitation by checking whether the views are empty.
-
-
         int set = Integer.valueOf(sets);
         int rep = Integer.valueOf(reps);
-
 
         //We add further data sanitation here by checking the range of set and rep.
         if (set == 0 || rep == 0) {
@@ -205,13 +203,13 @@ public class EditorActivity extends AppCompatActivity {
 
         } else if (mInEditMode) {
             updateExercise(new Exercise(title, set, rep));
-            Toast.makeText(this, "Exercise was successfully updated", Toast.LENGTH_SHORT)
+            Toast.makeText(this, "Exercise was successfully updated.", Toast.LENGTH_SHORT)
                     .show();
             NavUtils.navigateUpFromSameTask(this);
 
         } else {
             addExercise(new Exercise(title, set, rep));
-            Toast.makeText(this, "Exercise was successfully saved", Toast.LENGTH_SHORT)
+            Toast.makeText(this, "Exercise was successfully saved.", Toast.LENGTH_SHORT)
                     .show();
             NavUtils.navigateUpFromSameTask(this);
 
@@ -245,8 +243,10 @@ public class EditorActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * This method confirms that a user wishes to delete an exercise from a routine.
+     */
     private void confirmDelete() {
-        //We build an AlertDialog that confirms user's desire to delete the exercise.
         AlertDialog.Builder builder = new AlertDialog.Builder(EditorActivity.this);
         builder.setTitle("Deletion Confirmation");
         builder.setMessage("Are you sure you want to delete this exercise?");
@@ -259,11 +259,13 @@ public class EditorActivity extends AppCompatActivity {
                     getContentResolver().delete(uri,
                             ExerciseTable.COLUMN_ID + "=?",
                             new String[]{String.valueOf(index)});
-                    Toast.makeText(EditorActivity.this, "Exercise was successfully deleted.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(EditorActivity.this,
+                            "Exercise was successfully deleted.", Toast.LENGTH_SHORT).show();
                     NavUtils.navigateUpFromSameTask(EditorActivity.this);
 
                 } catch (CursorIndexOutOfBoundsException e) {
-                    Toast.makeText(EditorActivity.this, "Your exercise index is invalid.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(EditorActivity.this,
+                            "Your exercise index is invalid.", Toast.LENGTH_SHORT).show();
                 }
             }
         });

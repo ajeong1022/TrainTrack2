@@ -35,7 +35,8 @@ public class ExerciseProvider extends ContentProvider {
 
     @Nullable
     @Override
-    public Cursor query(@NonNull Uri uri, @Nullable String[] strings, @Nullable String s, @Nullable String[] strings1, @Nullable String s1) {
+    public Cursor query(@NonNull Uri uri, @Nullable String[] strings, @Nullable String s,
+                        @Nullable String[] strings1, @Nullable String s1) {
         Cursor result = null;
         SQLiteDatabase db = mDbHelper.getReadableDatabase();
         switch(sMatcher.match(uri)){
@@ -96,7 +97,7 @@ public class ExerciseProvider extends ContentProvider {
                 db.close();
                 break;
         }
-        return ContentUris.withAppendedId(ExerciseTable.CONTENT_URI_ID, rowId);
+        return ContentUris.withAppendedId(ExerciseTable.CONTENT_URI, rowId);
     }
 
     @Override
@@ -117,7 +118,8 @@ public class ExerciseProvider extends ContentProvider {
     }
 
     @Override
-    public int update(@NonNull Uri uri, @Nullable ContentValues contentValues, @Nullable String s, @Nullable String[] strings) {
+    public int update(@NonNull Uri uri, @Nullable ContentValues contentValues,
+                      @Nullable String s, @Nullable String[] strings) {
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
         int rows = 0;
 

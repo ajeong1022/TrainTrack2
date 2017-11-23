@@ -2,7 +2,7 @@ package com.example.andy.traintrack2;
 
 /**
  * This class defines an object called Exercise.
- * This object has attributes and methods that provide information about an exercise.
+ * This object has attributes and methods that provide information about an exercise in a training routine.
  */
 
 public class Exercise {

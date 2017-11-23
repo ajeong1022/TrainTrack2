@@ -11,6 +11,9 @@ import android.widget.TextView;
 import com.example.andy.traintrack2.Data.ExerciseContract.ExerciseTable;
 import com.google.gson.Gson;
 
+/**
+ * A simple adapter that shows the title of an exercise in a TextView.
+ */
 public class ExerciseAdapter extends RecyclerView.Adapter {
     private Cursor mExerciseCursor;
 
