@@ -2,6 +2,7 @@
 Simple data storage application to save training routines.
 
 Sample implementation of the following Android features:
--Content Provider
+-ContentProvider
+-CursorLoader
 -RecyclerView/RecyclerView Adapter
 -SQLiteDatabase
